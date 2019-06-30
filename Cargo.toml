@@ -1,0 +1,7 @@
+[package]
+name = "logme"
+version = "0.1.0"
+authors = ["0xazure <stuart.crust@gmail.com>"]
+edition = "2018"
+
+[dependencies]
