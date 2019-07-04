@@ -24,7 +24,7 @@ fn read_lines(file: &File) {
     buff.lines()
         .map(Result::unwrap_or_default)
         .filter(|l| !l.is_empty())
-        .for_each(|l| println!("{}", l));
+        .for_each(|l| println!("- {}", l));
 }
 
 fn main() -> Result<(), Box<dyn error::Error>> {
