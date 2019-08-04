@@ -1,22 +1,17 @@
 use chrono::Local;
+use clap::{crate_name, crate_version, App, Arg};
 use dirs;
 use std::convert::Into;
-use std::env::{self, Args};
+use std::env;
 use std::error;
 use std::fs::{self, File, OpenOptions};
-use std::io::{self, BufRead, BufReader, Write};
+use std::io::{BufRead, BufReader, Write};
 use std::path::PathBuf;
 
 fn xdg_data_home() -> PathBuf {
     dirs::home_dir()
         .expect("$HOME must be set")
         .join(format!(".local/share/{}", env!("CARGO_PKG_NAME")))
-}
-
-fn write_line(args: Args, mut file: File) -> io::Result<()> {
-    // Collect all program "arguments" as the message to store separated by spaces
-    let note = args.collect::<Vec<_>>().join(" ");
-    writeln!(file, "{}", note)
 }
 
 fn read_lines(file: &File) {
@@ -28,6 +23,11 @@ fn read_lines(file: &File) {
 }
 
 fn main() -> Result<(), Box<dyn error::Error>> {
+    let matches = App::new(crate_name!())
+        .version(crate_version!())
+        .arg(Arg::with_name("message").help("Message to record").index(1))
+        .get_matches();
+
     // Get or compute XDG_DATA_HOME path
     let data_dir = env::var_os("XDG_DATA_HOME").map_or_else(xdg_data_home, Into::into);
 
@@ -43,13 +43,11 @@ fn main() -> Result<(), Box<dyn error::Error>> {
         .append(true)
         .open(&filepath)?;
 
-    let mut args = env::args();
-    args.next(); // Skip args[0], which is (usually) the program name
-
-    match args.len() {
-        0 => read_lines(&file),
-        _ => write_line(args, file)?,
-    };
+    if let Some(message) = matches.value_of("message") {
+        writeln!(&file, "{}", message)?;
+    } else {
+        read_lines(&file);
+    }
 
     Ok(())
 }
