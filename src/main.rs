@@ -44,7 +44,9 @@ fn main() -> Result<(), Box<dyn error::Error>> {
         .open(&filepath)?;
 
     if let Some(message) = matches.value_of("message") {
-        writeln!(&file, "{}", message)?;
+        if !message.is_empty() {
+            writeln!(&file, "{}", message)?;
+        }
     } else {
         read_lines(&file);
     }
